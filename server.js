@@ -1,7 +1,7 @@
 import express from "express";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-import mergeData from "./mergeData.js";
+import mergeData from "./fitnessDataService.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,32 +23,145 @@ app.get("/data", async (req, res) => {
   console.log("🔥 /data HIT");
 
   try {
-    const merged = await mergeData();
+    // Get date range from query parameters, default to December 2025
+    const startDate = req.query.startDate || "2025-12-01";
+    const endDate = req.query.endDate || "2025-12-31";
+    
+    console.log(`Fetching data for range: ${startDate} to ${endDate}`);
 
-    const december2025 = Object.entries(merged)
-      .filter(([date]) => {
-        const d = new Date(date);
-        return d.getFullYear() === 2025 && d.getMonth() === 11; // December
-      })
-      .map(([date, value]) => {
-        const totalMeters = value.runs.length
+    const merged = await mergeData(startDate, endDate);
+
+    // Get all available dates for debugging
+    const allDates = Object.keys(merged).sort();
+    console.log(`Available dates in merged data: ${allDates.slice(0, 5).join(', ')}...${allDates.slice(-5).join(', ')}`);
+    console.log(`Total dates available: ${allDates.length}`);
+
+    // Filter data by date range (using string comparison for reliability)
+    const filtered = Object.entries(merged)
+      .filter(([date, value]) => {
+        // Simple string comparison works for YYYY-MM-DD format
+        const included = date >= startDate && date <= endDate;
+        if (!included && date >= startDate) {
+          console.log(`Date ${date} excluded: ${date} > ${endDate}?`);
+        }
+        // Also log dates with runs that are being included
+        if (included && value.runs && value.runs.length > 0) {
+          console.log(`Date ${date} included with ${value.runs.length} run(s), total distance: ${value.runs.reduce((sum, r) => sum + r.distance, 0) / 1609.34} miles`);
+        }
+        return included;
+      });
+    
+    console.log(`Filtered to ${filtered.length} dates`);
+    
+    // Create a map of filtered data for quick lookup
+    const filteredMap = new Map(filtered);
+    
+    // Generate all dates in the range and ensure each has an entry
+    const allDatesInRange = [];
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split('T')[0];
+      allDatesInRange.push(dateStr);
+    }
+    
+    console.log(`Generated ${allDatesInRange.length} dates in range ${startDate} to ${endDate}`);
+    console.log(`Last date in range: ${allDatesInRange[allDatesInRange.length - 1]}`);
+    
+    const mapped = allDatesInRange.map(date => {
+        const value = filteredMap.get(date) || { runs: [], sleep: null, readiness: null };
+        const totalMeters = value.runs && value.runs.length
           ? value.runs.reduce((sum, r) => sum + r.distance, 0)
           : 0;
+        
+        const distanceMiles = +(totalMeters / 1609.34).toFixed(2);
+        
+        // Calculate pace and heart rate metrics
+        const runsWithPace = value.runs.filter(r => r.pace !== null && r.pace > 0);
+        const runsWithHR = value.runs.filter(r => r.averageHeartrate !== null);
+        
+        // Calculate weighted average pace (weighted by distance)
+        let avgPace = null;
+        if (runsWithPace.length > 0) {
+          let totalWeightedPace = 0;
+          let totalDistance = 0;
+          runsWithPace.forEach(r => {
+            totalWeightedPace += r.pace * r.distance;
+            totalDistance += r.distance;
+          });
+          if (totalDistance > 0) {
+            avgPace = +(totalWeightedPace / totalDistance).toFixed(2);
+          }
+        }
+        
+        // Calculate weighted average heart rate (weighted by distance)
+        let avgHeartrate = null;
+        if (runsWithHR.length > 0) {
+          let totalWeightedHR = 0;
+          let totalDistance = 0;
+          runsWithHR.forEach(r => {
+            totalWeightedHR += r.averageHeartrate * r.distance;
+            totalDistance += r.distance;
+          });
+          if (totalDistance > 0) {
+            avgHeartrate = Math.round(totalWeightedHR / totalDistance);
+          }
+        }
+        
+        // Get max heart rate across all runs
+        let maxHeartrate = null;
+        if (value.runs && value.runs.length > 0) {
+          const maxHRs = value.runs
+            .map(r => r.maxHeartrate)
+            .filter(hr => hr !== null && hr > 0);
+          if (maxHRs.length > 0) {
+            maxHeartrate = Math.max(...maxHRs);
+          }
+        }
+        
+        // Debug Dec 30 specifically
+        if (date === "2025-12-30") {
+          console.log(`Processing Dec 30:`, {
+            hasValue: !!filteredMap.get(date),
+            runsCount: value.runs ? value.runs.length : 0,
+            totalMeters: totalMeters,
+            distanceMiles: distanceMiles,
+            avgPace: avgPace,
+            avgHeartrate: avgHeartrate,
+            maxHeartrate: maxHeartrate,
+            runs: value.runs ? value.runs.map(r => ({ 
+              distance: r.distance, 
+              date: r.date,
+              pace: r.pace,
+              avgHR: r.averageHeartrate,
+              maxHR: r.maxHeartrate
+            })) : []
+          });
+        }
 
         return {
           date,
-          distance: +(totalMeters / 1609.34).toFixed(2), // meters → miles
+          distance: distanceMiles,
 
           sleep: value.sleep ? formatSeconds(value.sleep.total) : null,
           light: value.sleep ? formatSeconds(value.sleep.light) : null,
           rem: value.sleep ? formatSeconds(value.sleep.rem) : null,
           deep: value.sleep ? formatSeconds(value.sleep.deep) : null,
 
-          crown: value.sleep ? value.sleep.score : null
+          sleepScore: value.sleep ? value.sleep.score : null,
+          readinessScore: value.readiness ? value.readiness.score : null,
+          
+          pace: avgPace, // min/mile
+          averageHeartrate: avgHeartrate, // bpm
+          maxHeartrate: maxHeartrate // bpm
         };
       });
 
-    return res.json(december2025);
+    console.log(`Final mapped data: ${mapped.length} entries`);
+    console.log(`Last entry date: ${mapped[mapped.length - 1].date}, distance: ${mapped[mapped.length - 1].distance}`);
+
+    return res.json(mapped);
   } catch (err) {
     console.error("❌ /data error:", err);
     return res.status(500).json({ error: "Failed to fetch data" });
@@ -56,11 +169,15 @@ app.get("/data", async (req, res) => {
 });
 
 // Fallback: serve index.html for all other routes (SPA support)
+// This must be last, after all other routes and static files
 app.use((req, res) => {
-  // If it's not the /data route, serve index.html for client-side routing
-  if (req.path !== "/data" && !req.path.startsWith("/data")) {
-    res.sendFile(join(__dirname, "public", "index.html"));
-  }
+  // Serve index.html for all non-API routes (SPA routing support)
+  res.sendFile(join(__dirname, "public", "index.html"), (err) => {
+    if (err) {
+      console.error("Error sending index.html:", err);
+      res.status(500).send("Error loading page");
+    }
+  });
 });
 
 app.listen(port, () => {
