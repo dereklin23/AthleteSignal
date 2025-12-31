@@ -375,7 +375,8 @@ app.use((req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`[INFO] Server running at http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`[INFO] Server running on port ${port}`);
+  console.log(`[INFO] Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`[INFO] Make sure to set up your OAuth apps and update .env file`);
 });
