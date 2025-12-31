@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Training + Sleep</title>
+  <title>RestToRun</title>
   <style>
     * {
       box-sizing: border-box;
@@ -168,8 +168,48 @@
       width: 100%;
       margin: 0 auto 30px;
       display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+    .stats-column {
+      display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      position: relative;
+    }
+    .stats-column.sleep-stats {
+      border-left: 4px solid #3498db;
+    }
+    .stats-column.running-stats {
+      border-left: 4px solid #e74c3c;
+    }
+    .stats-column-title {
+      grid-column: 1 / -1;
+      font-size: 18px;
+      font-weight: 700;
+      color: #2c3e50;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .sleep-stats .stats-column-title {
+      color: #3498db;
+      border-bottom-color: #3498db;
+    }
+    .running-stats .stats-column-title {
+      color: #e74c3c;
+      border-bottom-color: #e74c3c;
+    }
+    @media (max-width: 968px) {
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
     }
     .stat-card {
       background: white;
@@ -234,11 +274,13 @@
       <button data-preset="last30">Last 30 Days</button>
       <button data-preset="thisMonth">This Month</button>
       <button data-preset="lastMonth">Last Month</button>
+      <button data-preset="thisYear">This Year</button>
+      <button data-preset="lastYear">Last Year</button>
     </div>
     <button id="updateDates">Update Range</button>
   </div>
 
-  <h1 id="pageTitle">December 2025 — Training & Sleep</h1>
+  <h1 id="pageTitle">December 2025</h1>
 
   <div class="stats-container" id="statsContainer">
     <!-- Stats cards will be inserted here -->
@@ -252,6 +294,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="app.js"></script>
+  <script src="dashboardClient.js"></script>
 </body>
 </html>

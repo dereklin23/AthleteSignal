@@ -112,13 +112,13 @@ async function loadData(startDate, endDate) {
     
     return data;
   } catch (error) {
-    console.error("❌ Error loading data:", error);
+    console.error("[ERROR] Error loading data:", error);
     return [];
   }
 }
 
 function formatDateRangeTitle(startDate, endDate) {
-  if (!startDate || !endDate) return "Training & Sleep";
+  if (!startDate || !endDate) return "Dashboard";
   
   const start = new Date(startDate);
   const end = new Date(endDate);
@@ -130,16 +130,16 @@ function formatDateRangeTitle(startDate, endDate) {
   
   // Same month and year
   if (startMonth === endMonth && startYear === endYear) {
-    return `${startMonth} ${startYear} — Training & Sleep`;
+    return `${startMonth} ${startYear}`;
   }
   
   // Same year, different months
   if (startYear === endYear) {
-    return `${startMonth} - ${endMonth} ${startYear} — Training & Sleep`;
+    return `${startMonth} - ${endMonth} ${startYear}`;
   }
   
   // Different years
-  return `${startMonth} ${startYear} - ${endMonth} ${endYear} — Training & Sleep`;
+  return `${startMonth} ${startYear} - ${endMonth} ${endYear}`;
 }
 
 function updatePageTitle(startDate, endDate) {
@@ -191,6 +191,7 @@ function updateStatistics(data, totalSleep, light, rem, deep, distance, sleepSco
   
   const totalDistance = validDistance.reduce((sum, d) => sum + d, 0);
   const avgDistance = validDistance.length > 0 ? totalDistance / validDistance.length : 0;
+  const maxDistance = validDistance.length > 0 ? Math.max(...validDistance) : 0;
   
   const totalLight = light.reduce((sum, h) => sum + h, 0);
   const totalREM = rem.reduce((sum, h) => sum + h, 0);
@@ -206,6 +207,7 @@ function updateStatistics(data, totalSleep, light, rem, deep, distance, sleepSco
   
   // Calculate pace statistics (weighted by distance)
   let avgPace = null;
+  let bestPace = null;
   if (validPace.length > 0 && validDistance.length > 0) {
     // Match pace with distance for weighted average
     let totalWeightedPace = 0;
@@ -219,6 +221,8 @@ function updateStatistics(data, totalSleep, light, rem, deep, distance, sleepSco
     if (totalDist > 0) {
       avgPace = totalWeightedPace / totalDist;
     }
+    // Best (fastest) pace is the minimum value
+    bestPace = Math.min(...validPace);
   }
   
   // Calculate heart rate statistics
@@ -320,67 +324,84 @@ function updateStatistics(data, totalSleep, light, rem, deep, distance, sleepSco
   } else {
     // Full comprehensive view for multiple days
     statsContainer.innerHTML = `
-      <div class="stat-card sleep">
-        <div class="stat-label">Average Sleep</div>
-        <div class="stat-value">${formatHours(avgSleepHours)}</div>
-        <div class="stat-unit">per night</div>
-      </div>
-      <div class="stat-card" style="border-left: 4px solid ${getScoreColor(avgSleepScore)};">
-        <div class="stat-label">Avg Sleep Score</div>
-        <div class="stat-value" style="color: ${getScoreColor(avgSleepScore)};">${avgSleepScore}</div>
-        <div class="stat-unit">${validSleepScores.length} days ${sleepCrowns > 0 ? `👑 ${sleepCrowns}` : ''}</div>
-      </div>
-      <div class="stat-card" style="border-left: 4px solid ${getScoreColor(avgReadinessScore)};">
-        <div class="stat-label">Avg Readiness</div>
-        <div class="stat-value" style="color: ${getScoreColor(avgReadinessScore)};">${avgReadinessScore}</div>
-        <div class="stat-unit">${validReadinessScores.length} days ${readinessCrowns > 0 ? `👑 ${readinessCrowns}` : ''}</div>
-      </div>
-      <div class="stat-card" style="border-left: 4px solid #f39c12;">
-        <div class="stat-label">Total Crowns</div>
-        <div class="stat-value" style="color: #f39c12; font-size: 28px;">👑 ${totalCrowns}</div>
-        <div class="stat-unit">${sleepCrowns} sleep + ${readinessCrowns} readiness</div>
-      </div>
-      <div class="stat-card distance">
-        <div class="stat-label">Total Distance</div>
-        <div class="stat-value">${totalDistance.toFixed(1)}</div>
-        <div class="stat-unit">miles</div>
-      </div>
-      <div class="stat-card average">
-        <div class="stat-label">Avg Distance</div>
-        <div class="stat-value">${avgDistance.toFixed(1)}</div>
-        <div class="stat-unit">miles per run</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Runs</div>
-        <div class="stat-value">${daysWithRuns}</div>
-        <div class="stat-unit">total runs</div>
-      </div>
-      <div class="stat-card" style="border-left: 4px solid #3498db;">
-        <div class="stat-label">Avg Pace</div>
-        <div class="stat-value" style="color: #3498db;">${avgPace !== null ? formatPace(avgPace) : 'N/A'}</div>
-        <div class="stat-unit">min/mile</div>
-      </div>
-      <div class="stat-card" style="border-left: 4px solid #e74c3c;">
-        <div class="stat-label">Avg Heart Rate</div>
-        <div class="stat-value" style="color: #e74c3c;">${avgHR !== null ? Math.round(avgHR) : 'N/A'}</div>
-        <div class="stat-unit">bpm</div>
-      </div>
-      <div class="stat-card" style="border-left: 4px solid #c0392b;">
-        <div class="stat-label">Max Heart Rate</div>
-        <div class="stat-value" style="color: #c0392b;">${maxHR !== null ? maxHR : 'N/A'}</div>
-        <div class="stat-unit">bpm</div>
-      </div>
-      <div class="stat-card" style="border-left: 4px solid #9b59b6;">
-        <div class="stat-label">Avg Cadence</div>
-        <div class="stat-value" style="color: #9b59b6;">${avgCadence !== null ? Math.round(avgCadence) : 'N/A'}</div>
-        <div class="stat-unit">spm</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Sleep Breakdown</div>
-        <div class="stat-value" style="font-size: 24px; margin-bottom: 8px;">
-          ${daysWithSleep > 0 ? `${formatHours(totalLight / daysWithSleep)} / ${formatHours(totalREM / daysWithSleep)} / ${formatHours(totalDeep / daysWithSleep)}` : '0h / 0h / 0h'}
+      <div class="stats-column sleep-stats">
+        <div class="stats-column-title">😴 Recovery Metrics</div>
+        <!-- Sleep Stats (Left Side) -->
+        <div class="stat-card sleep">
+          <div class="stat-label">Average Sleep</div>
+          <div class="stat-value">${formatHours(avgSleepHours)}</div>
+          <div class="stat-unit">per night</div>
         </div>
-        <div class="stat-unit">Light / REM / Deep (avg)</div>
+        <div class="stat-card" style="border-left: 4px solid ${getScoreColor(avgSleepScore)};">
+          <div class="stat-label">Avg Sleep Score</div>
+          <div class="stat-value" style="color: ${getScoreColor(avgSleepScore)};">${avgSleepScore}</div>
+          <div class="stat-unit">${sleepCrowns > 0 ? `👑 ${sleepCrowns}` : ''}</div>
+        </div>
+        <div class="stat-card" style="border-left: 4px solid ${getScoreColor(avgReadinessScore)};">
+          <div class="stat-label">Avg Readiness</div>
+          <div class="stat-value" style="color: ${getScoreColor(avgReadinessScore)};">${avgReadinessScore}</div>
+          <div class="stat-unit">${readinessCrowns > 0 ? `👑 ${readinessCrowns}` : ''}</div>
+        </div>
+        <div class="stat-card" style="border-left: 4px solid #f39c12;">
+          <div class="stat-label">Total Crowns</div>
+          <div class="stat-value" style="color: #f39c12; font-size: 28px;">👑 ${totalCrowns}</div>
+          <div class="stat-unit">${sleepCrowns} sleep + ${readinessCrowns} readiness</div>
+        </div>
+      </div>
+      
+      <div class="stats-column running-stats">
+        <div class="stats-column-title">🏃‍♂️ Performance Metrics</div>
+        <!-- Running Stats (Right Side) -->
+        <!-- Totals & Maximums (Top) -->
+        <div class="stat-card distance">
+          <div class="stat-label">Total Distance</div>
+          <div class="stat-value">${totalDistance.toFixed(1)}</div>
+          <div class="stat-unit">miles</div>
+        </div>
+        ${daysWithRuns > 1 ? `
+        <div class="stat-card" style="border-left: 4px solid #27ae60;">
+          <div class="stat-label">Longest Distance</div>
+          <div class="stat-value" style="color: #27ae60;">${maxDistance.toFixed(1)}</div>
+          <div class="stat-unit">miles</div>
+        </div>` : ''}
+        <div class="stat-card">
+          <div class="stat-label">Runs</div>
+          <div class="stat-value">${daysWithRuns}</div>
+          <div class="stat-unit">total runs</div>
+        </div>
+        ${validPace.length > 1 ? `
+        <div class="stat-card" style="border-left: 4px solid #2ecc71;">
+          <div class="stat-label">Fastest Pace</div>
+          <div class="stat-value" style="color: #2ecc71;">${bestPace !== null ? formatPace(bestPace) : 'N/A'}</div>
+          <div class="stat-unit">min/mile</div>
+        </div>` : ''}
+        <div class="stat-card" style="border-left: 4px solid #c0392b;">
+          <div class="stat-label">Max Heart Rate</div>
+          <div class="stat-value" style="color: #c0392b;">${maxHR !== null ? maxHR : 'N/A'}</div>
+          <div class="stat-unit">bpm</div>
+        </div>
+        
+        <!-- Averages (Bottom) -->
+        <div class="stat-card average">
+          <div class="stat-label">Avg Distance</div>
+          <div class="stat-value">${avgDistance.toFixed(1)}</div>
+          <div class="stat-unit">miles per run</div>
+        </div>
+        <div class="stat-card" style="border-left: 4px solid #3498db;">
+          <div class="stat-label">Avg Pace</div>
+          <div class="stat-value" style="color: #3498db;">${avgPace !== null ? formatPace(avgPace) : 'N/A'}</div>
+          <div class="stat-unit">min/mile</div>
+        </div>
+        <div class="stat-card" style="border-left: 4px solid #e74c3c;">
+          <div class="stat-label">Avg Heart Rate</div>
+          <div class="stat-value" style="color: #e74c3c;">${avgHR !== null ? Math.round(avgHR) : 'N/A'}</div>
+          <div class="stat-unit">bpm</div>
+        </div>
+        <div class="stat-card" style="border-left: 4px solid #9b59b6;">
+          <div class="stat-label">Avg Cadence</div>
+          <div class="stat-value" style="color: #9b59b6;">${avgCadence !== null ? Math.round(avgCadence) : 'N/A'}</div>
+          <div class="stat-unit">spm</div>
+        </div>
       </div>
     `;
   }
@@ -410,7 +431,7 @@ function formatDateLabel(dateString, dateRangeDays, showMonth = true) {
   // For medium-long ranges (60-90 days), show month and day
   else if (dateRangeDays > 60) {
     return `${monthName} ${dayNum}`;
-  }
+}
   // For medium ranges (30-60 days), show month and day
   else if (dateRangeDays > 30) {
     return `${monthName} ${dayNum}`;
@@ -522,10 +543,10 @@ async function loadDataAndCreateCharts(startDate, endDate) {
     const tickSpacing = calculateOptimalTickSpacing(data.length, dateRangeDays);
     const maxTicks = calculateMaxTicks(data.length, dateRangeDays);
 
-    const totalSleep = data.map(d => parseHours(d.sleep));
-    const light = data.map(d => parseHours(d.light));
-    const rem = data.map(d => parseHours(d.rem));
-    const deep = data.map(d => parseHours(d.deep));
+  const totalSleep = data.map(d => parseHours(d.sleep));
+  const light = data.map(d => parseHours(d.light));
+  const rem = data.map(d => parseHours(d.rem));
+  const deep = data.map(d => parseHours(d.deep));
     const distance = data.map(d => parseFloat(d.distance) || 0);
     const sleepScores = data.map(d => d.sleepScore !== null && d.sleepScore !== undefined ? parseFloat(d.sleepScore) : null);
     const readinessScores = data.map(d => d.readinessScore !== null && d.readinessScore !== undefined ? parseFloat(d.readinessScore) : null);
@@ -573,9 +594,9 @@ async function loadDataAndCreateCharts(startDate, endDate) {
       requestedEndDate: endDate
     });
 
-    /* =========================
-       SLEEP STACKED BAR CHART
-    ========================= */
+  /* =========================
+     SLEEP STACKED BAR CHART
+  ========================= */
 
     try {
       // Destroy existing chart if it exists
@@ -624,6 +645,67 @@ async function loadDataAndCreateCharts(startDate, endDate) {
         sleepChartEl.chart.destroy();
         sleepChartEl.chart = null;
       }
+
+      // Helper function to format hours to xHrxM
+      const formatHoursToHM = (decimalHours) => {
+        if (!decimalHours || isNaN(decimalHours) || decimalHours === 0) return '0h';
+        const totalMinutes = Math.round(decimalHours * 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        return minutes > 0 ? `${hours}h${minutes}m` : `${hours}h`;
+      };
+
+      // Log Chart.js version for debugging
+      if (typeof Chart !== 'undefined' && Chart.version) {
+        console.log('Chart.js version:', Chart.version);
+      }
+
+      // Register custom tooltip formatter plugin
+      Chart.register({
+        id: 'sleepTooltipFormatter',
+        beforeTooltipUpdate: function(chart, args) {
+          // Intercept tooltip before it's displayed
+          const tooltip = chart.tooltip;
+          if (tooltip && tooltip.dataPoints) {
+            tooltip.dataPoints.forEach(point => {
+              if (point.parsed && point.parsed.y !== null && !isNaN(point.parsed.y)) {
+                const value = point.parsed.y;
+                const formatted = formatHoursToHM(value);
+                point.label = `${point.dataset.label}: ${formatted}`;
+                console.log('[TOOLTIP] Plugin formatting:', point.dataset.label, value, '→', formatted);
+              }
+            });
+          }
+        }
+      });
+
+      // Plugin to draw crowns on sleep chart
+      const sleepCrownPlugin = {
+        id: 'sleepCrowns',
+        afterDraw: (chart) => {
+          const ctx = chart.ctx;
+          const meta = chart.getDatasetMeta(0);
+          
+          // Draw blue crowns for sleep scores >= 85
+          sleepScores.forEach((score, index) => {
+            if (score !== null && score >= 85) {
+              const bar = meta.data[index];
+              if (bar) {
+                const x = bar.x;
+                const y = bar.y - 25; // Position above the bar
+                
+                ctx.save();
+                ctx.font = 'bold 22px Arial';
+                ctx.fillStyle = '#3498db'; // Blue for sleep crown
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('👑', x, y);
+                ctx.restore();
+              }
+            }
+          });
+        }
+      };
 
       sleepChartInstance = new Chart(sleepChartEl, {
     type: "bar",
@@ -713,31 +795,8 @@ async function loadDataAndCreateCharts(startDate, endDate) {
             color: '#34495e'
           }
         },
-        // Custom plugin to draw blue crown for sleep score >= 85
-        afterDraw: (chart) => {
-          const ctx = chart.ctx;
-          const meta = chart.getDatasetMeta(0);
-          
-          // Draw blue crowns for sleep scores >= 85
-          sleepScores.forEach((score, index) => {
-            if (score !== null && score >= 85) {
-              const bar = meta.data[index];
-              if (bar) {
-                const x = bar.x;
-                const y = bar.y - 20; // Position above the bar
-                
-                ctx.save();
-                ctx.font = 'bold 20px Arial';
-                ctx.fillStyle = '#3498db'; // Blue for sleep crown
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('👑', x, y);
-                ctx.restore();
-              }
-            }
-          });
-        },
         tooltip: {
+          enabled: true,
           backgroundColor: 'rgba(0, 0, 0, 0.85)',
           padding: 14,
           titleFont: {
@@ -753,10 +812,8 @@ async function loadDataAndCreateCharts(startDate, endDate) {
             title: function(context) {
               const index = context[0].dataIndex;
               const rawDate = rawDates[index];
-              // Parse date string as local date to avoid timezone issues
-              // rawDate is in format "YYYY-MM-DD"
               const [year, month, day] = rawDate.split('-').map(Number);
-              const date = new Date(year, month - 1, day); // month is 0-indexed
+              const date = new Date(year, month - 1, day);
               return date.toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
@@ -765,40 +822,54 @@ async function loadDataAndCreateCharts(startDate, endDate) {
               });
             },
             label: function(context) {
+              // Chart.js v4 - get value from parsed.y
               const value = context.parsed.y;
-              const hours = Math.floor(value);
-              const minutes = Math.round((value - hours) * 60);
-              if (minutes > 0) {
-                return `${context.dataset.label}: ${hours}h ${minutes}m`;
+              
+              // Force console log to verify callback is called
+              console.log('[TOOLTIP] TOOLTIP CALLBACK FIRED!', {
+                dataset: context.dataset.label,
+                value: value,
+                parsed: context.parsed,
+                raw: context.raw
+              });
+              
+              if (value === null || value === undefined || isNaN(value) || value === 0) {
+                return `${context.dataset.label}: No data`;
               }
-              return `${context.dataset.label}: ${hours}h`;
+              
+              // Format decimal hours to xHrxM
+              const formatted = formatHoursToHM(value);
+              console.log('[SUCCESS] Returning formatted:', formatted);
+              
+              // Return the formatted string - this should replace the default
+              return `${context.dataset.label}: ${formatted}`;
+            },
+            labelTextColor: function() {
+              return 'rgba(255, 255, 255, 1)';
+            },
+            labelColor: function(context) {
+              return {
+                borderColor: context.dataset.borderColor || context.dataset.backgroundColor,
+                backgroundColor: context.dataset.backgroundColor
+              };
             },
             footer: function(tooltipItems) {
-              // Calculate total sleep by summing all datasets at this index
-              const dataIndex = tooltipItems[0].dataIndex;
               let totalHours = 0;
-              
-              // Sum all values from all datasets at this index
               tooltipItems.forEach(item => {
-                if (item.parsed && item.parsed.y !== null) {
-                  totalHours += item.parsed.y;
+                const value = item.parsed?.y;
+                if (value !== null && !isNaN(value)) {
+                  totalHours += value;
                 }
               });
               
               if (totalHours > 0) {
-                const hours = Math.floor(totalHours);
-                const minutes = Math.round((totalHours - hours) * 60);
-                if (minutes > 0) {
-                  return `Total Sleep: ${hours}h ${minutes}m`;
-                }
-                return `Total Sleep: ${hours}h`;
+                const formatted = formatHoursToHM(totalHours);
+                return `Total Sleep: ${formatted}`;
               }
               return '';
             }
           }
-        }
-      },
-      plugins: {
+        },
         // Ensure all bars get equal width by adjusting scale after layout
         afterLayout: (chart) => {
           if (!isSingleDay) {
@@ -810,32 +881,6 @@ async function loadDataAndCreateCharts(startDate, endDate) {
             // Update the scale to recalculate
             xScale.update('none');
           }
-        },
-        // Custom plugin to draw crown indicators
-        afterDraw: (chart) => {
-          const ctx = chart.ctx;
-          const meta = chart.getDatasetMeta(0);
-          const xScale = chart.scales.x;
-          const yScale = chart.scales.y;
-          
-          // Draw crowns for sleep scores >= 85
-          sleepScores.forEach((score, index) => {
-            if (score !== null && score >= 85) {
-              const bar = meta.data[index];
-              if (bar) {
-                const x = bar.x;
-                const y = bar.y - 15; // Position above the bar
-                
-                ctx.save();
-                ctx.font = 'bold 20px Arial';
-                ctx.fillStyle = '#3498db'; // Blue for sleep crown
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('👑', x, y);
-                ctx.restore();
-              }
-            }
-          });
         }
       },
       scales: {
@@ -920,9 +965,10 @@ async function loadDataAndCreateCharts(startDate, endDate) {
           bottom: 5
         }
       }
-    }
-      });
-      console.log("✅ Sleep chart created successfully", sleepChartInstance);
+    },
+    plugins: [sleepCrownPlugin] // Register the crown plugin
+  });
+      console.log("[SUCCESS] Sleep chart created successfully", sleepChartInstance);
       
       // Store reference on canvas element
       sleepChartEl.chart = sleepChartInstance;
@@ -934,13 +980,13 @@ async function loadDataAndCreateCharts(startDate, endDate) {
         const canvas = document.getElementById("sleepChart");
         
         if (!canvas) {
-          console.error(`❌ [${checkCount}s] Sleep chart canvas element removed from DOM!`);
+          console.error(`[ERROR] [${checkCount}s] Sleep chart canvas element removed from DOM!`);
           clearInterval(monitorInterval);
           return;
         }
         
         if (!canvas.parentElement) {
-          console.error(`❌ [${checkCount}s] Sleep chart canvas has no parent!`);
+          console.error(`[ERROR] [${checkCount}s] Sleep chart canvas has no parent!`);
           clearInterval(monitorInterval);
           return;
         }
@@ -949,29 +995,29 @@ async function loadDataAndCreateCharts(startDate, endDate) {
         const computedStyle = window.getComputedStyle(canvas);
         
         if (rect.width === 0 || rect.height === 0) {
-          console.error(`❌ [${checkCount}s] Sleep chart canvas has zero dimensions!`, rect);
+          console.error(`[ERROR] [${checkCount}s] Sleep chart canvas has zero dimensions!`, rect);
         }
         
         if (computedStyle.display === 'none') {
-          console.error(`❌ [${checkCount}s] Sleep chart canvas is hidden!`, computedStyle);
+          console.error(`[ERROR] [${checkCount}s] Sleep chart canvas is hidden!`, computedStyle);
         }
         
         if (computedStyle.visibility === 'hidden') {
-          console.error(`❌ [${checkCount}s] Sleep chart canvas visibility is hidden!`, computedStyle);
+          console.error(`[ERROR] [${checkCount}s] Sleep chart canvas visibility is hidden!`, computedStyle);
         }
         
         if (computedStyle.opacity === '0') {
-          console.error(`❌ [${checkCount}s] Sleep chart canvas opacity is 0!`, computedStyle);
+          console.error(`[ERROR] [${checkCount}s] Sleep chart canvas opacity is 0!`, computedStyle);
         }
         
         if (sleepChartInstance && sleepChartInstance.destroyed) {
-          console.error(`❌ [${checkCount}s] Sleep chart instance was destroyed!`);
+          console.error(`[ERROR] [${checkCount}s] Sleep chart instance was destroyed!`);
           clearInterval(monitorInterval);
           return;
         }
         
         if (checkCount <= 5) {
-          console.log(`✅ [${checkCount}s] Sleep chart still active - width: ${rect.width}, height: ${rect.height}, display: ${computedStyle.display}`);
+          console.log(`[SUCCESS] [${checkCount}s] Sleep chart still active - width: ${rect.width}, height: ${rect.height}, display: ${computedStyle.display}`);
         }
         
         // Stop monitoring after 10 seconds
@@ -980,16 +1026,16 @@ async function loadDataAndCreateCharts(startDate, endDate) {
         }
       }, 1000);
     } catch (error) {
-      console.error("❌ Error creating sleep chart:", error);
+      console.error("[ERROR] Error creating sleep chart:", error);
       const errorMsg = document.createElement("p");
       errorMsg.style.cssText = "color: red; text-align: center; padding: 10px;";
       errorMsg.textContent = `Sleep chart error: ${error.message}`;
       document.body.appendChild(errorMsg);
     }
 
-    /* =========================
-       DISTANCE LINE CHART
-    ========================= */
+  /* =========================
+     DISTANCE LINE CHART
+  ========================= */
 
     try {
       // Destroy existing chart if it exists
@@ -1154,8 +1200,8 @@ async function loadDataAndCreateCharts(startDate, endDate) {
           left: 50,
           right: 50
         } : {
-          left: 0,
-          right: 20  // Add padding on right to prevent last point from being truncated
+          left: 10,
+          right: 40  // Add padding on right to prevent last point from being cut off
         }
       },
       animation: {
@@ -1304,15 +1350,12 @@ async function loadDataAndCreateCharts(startDate, endDate) {
           border: {
             display: false
           },
-          offset: false, // Keep all points evenly spaced
-          // Add space after last category to prevent truncation
+          offset: true, // Add padding on both sides to prevent point truncation
+          // For single day, center the point
           ...(isSingleDay ? { 
-            offset: true,
             min: -0.5, 
             max: 0.5 
-          } : {
-            max: labels.length - 0.5  // Add half category width after last point
-          })
+          } : {})
         },
         y: {
           type: 'linear',
@@ -1409,7 +1452,7 @@ async function loadDataAndCreateCharts(startDate, endDate) {
             padding: {
               bottom: 10,
               top: 5
-            }
+        }
           },
           ticks: {
             font: {
@@ -1439,7 +1482,7 @@ async function loadDataAndCreateCharts(startDate, endDate) {
       }
     }
       });
-      console.log("✅ Distance chart created successfully", distanceChartInstance);
+      console.log("[SUCCESS] Distance chart created successfully", distanceChartInstance);
       
       // Store reference on canvas element
       distanceChartEl.chart = distanceChartInstance;
@@ -1451,13 +1494,13 @@ async function loadDataAndCreateCharts(startDate, endDate) {
         const canvas = document.getElementById("distanceChart");
         
         if (!canvas) {
-          console.error(`❌ [${checkCount2}s] Distance chart canvas element removed from DOM!`);
+          console.error(`[ERROR] [${checkCount2}s] Distance chart canvas element removed from DOM!`);
           clearInterval(monitorInterval2);
           return;
         }
         
         if (!canvas.parentElement) {
-          console.error(`❌ [${checkCount2}s] Distance chart canvas has no parent!`);
+          console.error(`[ERROR] [${checkCount2}s] Distance chart canvas has no parent!`);
           clearInterval(monitorInterval2);
           return;
         }
@@ -1466,29 +1509,29 @@ async function loadDataAndCreateCharts(startDate, endDate) {
         const computedStyle = window.getComputedStyle(canvas);
         
         if (rect.width === 0 || rect.height === 0) {
-          console.error(`❌ [${checkCount2}s] Distance chart canvas has zero dimensions!`, rect);
+          console.error(`[ERROR] [${checkCount2}s] Distance chart canvas has zero dimensions!`, rect);
         }
         
         if (computedStyle.display === 'none') {
-          console.error(`❌ [${checkCount2}s] Distance chart canvas is hidden!`, computedStyle);
+          console.error(`[ERROR] [${checkCount2}s] Distance chart canvas is hidden!`, computedStyle);
         }
         
         if (computedStyle.visibility === 'hidden') {
-          console.error(`❌ [${checkCount2}s] Distance chart canvas visibility is hidden!`, computedStyle);
+          console.error(`[ERROR] [${checkCount2}s] Distance chart canvas visibility is hidden!`, computedStyle);
         }
         
         if (computedStyle.opacity === '0') {
-          console.error(`❌ [${checkCount2}s] Distance chart canvas opacity is 0!`, computedStyle);
+          console.error(`[ERROR] [${checkCount2}s] Distance chart canvas opacity is 0!`, computedStyle);
         }
         
         if (distanceChartInstance && distanceChartInstance.destroyed) {
-          console.error(`❌ [${checkCount2}s] Distance chart instance was destroyed!`);
+          console.error(`[ERROR] [${checkCount2}s] Distance chart instance was destroyed!`);
           clearInterval(monitorInterval2);
           return;
         }
         
         if (checkCount2 <= 5) {
-          console.log(`✅ [${checkCount2}s] Distance chart still active - width: ${rect.width}, height: ${rect.height}, display: ${computedStyle.display}`);
+          console.log(`[SUCCESS] [${checkCount2}s] Distance chart still active - width: ${rect.width}, height: ${rect.height}, display: ${computedStyle.display}`);
         }
         
         // Stop monitoring after 10 seconds
@@ -1500,7 +1543,7 @@ async function loadDataAndCreateCharts(startDate, endDate) {
       // Mark initialization as complete
       isInitializing = false;
     } catch (error) {
-      console.error("❌ Error creating distance chart:", error);
+      console.error("[ERROR] Error creating distance chart:", error);
       const errorMsg = document.createElement("p");
       errorMsg.style.cssText = "color: red; text-align: center; padding: 10px;";
       errorMsg.textContent = `Distance chart error: ${error.message}`;
@@ -1626,6 +1669,16 @@ function setupDateSelector() {
           startDate = new Date(lastMonth);
           endDate = new Date(today.getFullYear(), today.getMonth(), 0); // Last day of last month
           break;
+        case 'thisYear':
+          // January 1st of current year to today
+          startDate = new Date(today.getFullYear(), 0, 1);
+          endDate = new Date(today);
+          break;
+        case 'lastYear':
+          // January 1st to December 31st of previous year
+          startDate = new Date(today.getFullYear() - 1, 0, 1);
+          endDate = new Date(today.getFullYear() - 1, 11, 31);
+          break;
         default:
           return;
       }
@@ -1649,8 +1702,8 @@ function setupDateSelector() {
       console.log(`Today's date object:`, today);
       console.log(`Today's formatted date:`, formatDate(today));
       applyDateRange(startDateStr, endDateStr);
-    });
   });
+});
 
   updateButton.addEventListener('click', () => {
     // Remove active class from all preset buttons when manually updating

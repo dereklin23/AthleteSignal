@@ -1,11 +1,11 @@
 {
-  "name": "strava-oura",
+  "name": "rest-to-run",
   "version": "1.0.0",
-  "description": "",
+  "description": "Track your recovery and performance metrics - from rest to run",
   "main": "index.js",
   "scripts": {
-    "start": "node src/apiServer.js",
-    "dev": "node src/apiServer.js",
+    "start": "node src/fitnessApiServer.js",
+    "dev": "node src/fitnessApiServer.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
