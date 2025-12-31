@@ -24,15 +24,18 @@ app.use(session({
 
 app.use(express.json());
 
-// Serve static files (but not trainingDashboard.html - that's protected)
-app.use(express.static(join(__dirname, "..", "public"), {
+// Serve static files (excluding protected files)
+const staticOptions = {
   setHeaders: (res, path) => {
     // Prevent caching of HTML files to ensure auth checks work
     if (path.endsWith('.html')) {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
-  }
-}));
+  },
+  index: false // Don't automatically serve index.html
+};
+
+app.use(express.static(join(__dirname, "..", "public"), staticOptions));
 
 // Auth middleware
 function requireAuth(req, res, next) {
@@ -168,8 +171,10 @@ app.get("/auth/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       console.error('[ERROR] Session destroy error:', err);
+      return res.redirect('/login.html?error=logout_failed');
     }
-    res.redirect('/login.html');
+    console.log('[SUCCESS] User logged out successfully');
+    res.redirect('/login.html?logout=success');
   });
 });
 
