@@ -280,35 +280,28 @@ The application uses text-based log indicators for clarity:
 
 ## 📈 Recent Updates
 
-### December 31, 2025 - Goal Tracking Feature 🎯
-- **Added comprehensive goal tracking system**
-  - Set weekly and monthly goals for mileage, runs, sleep, and readiness
-  - Visual progress bars with gradient card UI
-  - Automatic progress calculation from dashboard data
-  - Streak tracking for sleep, runs, and readiness
-  - Personal best tracking
-  - LocalStorage persistence
-- See detailed documentation: **[GOAL_TRACKING_FEATURE.md](./GOAL_TRACKING_FEATURE.md)**
+### December 2025 🚀
 
-### December 31, 2025 - Production Deployment 🎉
-- **Successfully deployed to Railway**: https://resttorun-production.up.railway.app
-- **Added Redis session store** for production scalability
-- **Implemented health check endpoint** for monitoring
-- **Fixed Railway port configuration** (8080)
-- **Multi-user OAuth authentication** now live in production
+**Major Features:**
+- **Training Load & Recovery Analysis** - ACWR calculation, recovery scoring, and 14-day training calendar
+- **Yearly Mileage Planning** - Custom 52-week mileage goals with quarterly breakdowns
+- **Goal Tracking System** - Weekly and monthly goals for mileage, runs, sleep, and readiness with visual progress bars and streak tracking
+- **Comprehensive Documentation** - Feature showcase with screenshots and detailed guides
 
-### December 30, 2025
-- **Refactored file structure** for improved clarity:
-  - Renamed files to be more descriptive
-  - Better organization of client/server code
-- **Replaced emojis** in console logs with text indicators (except crown 👑)
-- **Added comprehensive documentation**
-- **Improved code maintainability**
+**Infrastructure & Deployment:**
+- **Production Deployment** - Successfully deployed to Railway with Redis session store
+- **Health Check Endpoint** - Monitoring endpoint for service status
+- **Multi-user OAuth** - Secure authentication with Strava and Oura APIs
 
-### December 29, 2025
-- **Initial commit** with working Strava and Oura API integration
-- **Frontend implementation** with Chart.js visualizations
-- **Routed sleep data** and running mileage for user
+**Code Quality & Documentation:**
+- **Refactored Architecture** - Improved file structure and code organization
+- **Enhanced Logging** - Text-based indicators for better debugging
+- **Feature Showcase** - Beautiful documentation with screenshots
+
+**Initial Development:**
+- **API Integration** - Strava and Oura API connections established
+- **Frontend Implementation** - Chart.js visualizations for data display
+- **Data Routing** - Sleep and running data integration
 
 ## 🤝 Contributing
 
