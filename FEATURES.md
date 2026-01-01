@@ -23,23 +23,22 @@ Select from preset ranges or choose custom dates to analyze your training and re
 
 ## 📈 Interactive Charts
 
-### Sleep Breakdown Visualization
+### Sleep Breakdown & Training Metrics
 
-Track your sleep quality with detailed breakdowns of Light, REM, and Deep sleep stages.
+Track your sleep quality and running performance with comprehensive visualizations.
 
-![Sleep Breakdown Chart](docs/screenshots/sleep-breakdown-chart.png)
+![Sleep and Running Data Charts](docs/screenshots/sleep-run-data.png)
 
-**Features:**
-- Stacked bar chart showing all sleep stages
+**Sleep Breakdown Features:**
+- Stacked bar chart showing all sleep stages (Light, REM, Deep)
 - Daily sleep duration tracking
 - Visual indicators for quality sleep
 - Hover tooltips with exact values
 
-### Training Metrics Chart
-
-Comprehensive visualization of your running performance with multiple metrics on a single chart.
-
-![Training Metrics Chart](docs/screenshots/training-metrics-chart.png)
+**Training Metrics Features:**
+- Multi-axis chart displaying distance, pace, heart rate, and cadence
+- Comprehensive visualization of your running performance
+- Multiple metrics on a single chart for easy comparison
 
 **Metrics Tracked:**
 - **Distance**: Total miles run per day
@@ -105,23 +104,19 @@ Monitor your consistency with current and best streaks.
 
 ## 📊 Performance Statistics
 
-### Recovery Metrics
+### Recovery & Performance Metrics
 
-Monitor your recovery with comprehensive sleep and readiness data.
+Monitor your recovery and track your fitness progress with comprehensive statistics.
 
-![Recovery Metrics](docs/screenshots/recovery-metrics.png)
+![Recovery and Performance Metrics](docs/screenshots/recovery-metrics-performance-metrics.png)
 
-**Metrics:**
+**Recovery Metrics:**
 - **Average Sleep**: Total sleep duration per night
 - **Sleep Score**: Average quality score with crown indicators 👑
 - **Readiness Score**: Average readiness with crown indicators 👑
 - **Total Crowns**: Achievement tracking for excellent days
 
-### Performance Metrics
-
-Detailed running statistics to track your fitness progress.
-
-![Performance Metrics](docs/screenshots/performance-metrics.png)
+**Performance Metrics:**
 
 **Tracked Metrics:**
 - **Total Distance**: Cumulative miles for the period
@@ -144,8 +139,6 @@ Detailed running statistics to track your fitness progress.
 ## 🎯 Training Load & Recovery Analysis
 
 Smart analytics to optimize your training and prevent injuries.
-
-![Training Load Analysis](docs/screenshots/training-load-analysis.png)
 
 ### Acute:Chronic Workload Ratio (ACWR)
 
@@ -175,8 +168,6 @@ Smart analytics to optimize your training and prevent injuries.
 ### 14-Day Training Calendar
 
 Visual planning tool showing recommended training intensity for each day.
-
-![Training Calendar](docs/screenshots/training-load-analysis.png)
 
 **Daily Recommendations:**
 - 💪 **Green**: Perfect for hard training or long runs (Recovery 85+)
