@@ -572,6 +572,9 @@ async function loadDataAndCreateCharts(startDate, endDate) {
     // Calculate and display statistics
     updateStatistics(data, totalSleep, light, rem, deep, distance, sleepScores, readinessScores, pace, averageHeartrate, maxHeartrate, cadence, isSingleDay);
     
+    // Update goals progress with loaded data
+    updateGoalsWithData(data);
+    
     // Debug: log data to verify it's correct
     console.log("Chart data summary:", {
       labelsCount: labels.length,
@@ -1733,4 +1736,273 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', setupDateSelector);
 } else {
   setTimeout(setupDateSelector, 50);
+}
+
+/* =========================
+   GOALS INTEGRATION
+========================= */
+
+let goalsManager = null;
+
+// Initialize goals system
+function initGoals() {
+  if (typeof GoalsManager === 'undefined') {
+    console.log('[GOALS] Waiting for GoalsManager...');
+    setTimeout(initGoals, 100);
+    return;
+  }
+  
+  goalsManager = new GoalsManager();
+  console.log('[GOALS] Goals system initialized');
+  
+  // Setup modal controls
+  const setGoalsBtn = document.getElementById('setGoalsBtn');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const cancelGoalsBtn = document.getElementById('cancelGoalsBtn');
+  const saveGoalsBtn = document.getElementById('saveGoalsBtn');
+  const goalsModal = document.getElementById('goalsModal');
+  
+  if (setGoalsBtn) {
+    setGoalsBtn.addEventListener('click', () => {
+      openGoalsModal();
+    });
+  }
+  
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', () => {
+      closeGoalsModal();
+    });
+  }
+  
+  if (cancelGoalsBtn) {
+    cancelGoalsBtn.addEventListener('click', () => {
+      closeGoalsModal();
+    });
+  }
+  
+  if (saveGoalsBtn) {
+    saveGoalsBtn.addEventListener('click', () => {
+      saveGoals();
+    });
+  }
+  
+  // Close modal on outside click
+  if (goalsModal) {
+    goalsModal.addEventListener('click', (e) => {
+      if (e.target === goalsModal) {
+        closeGoalsModal();
+      }
+    });
+  }
+  
+  // Render initial goals display
+  renderGoals();
+}
+
+// Open goals modal and populate with current values
+function openGoalsModal() {
+  const modal = document.getElementById('goalsModal');
+  if (!modal || !goalsManager) return;
+  
+  const goals = goalsManager.goals;
+  
+  // Populate weekly goals
+  document.getElementById('weeklyMileageEnabled').checked = goals.weekly.mileage.enabled;
+  document.getElementById('weeklyMileageTarget').value = goals.weekly.mileage.target;
+  document.getElementById('weeklyRunsEnabled').checked = goals.weekly.runs.enabled;
+  document.getElementById('weeklyRunsTarget').value = goals.weekly.runs.target;
+  document.getElementById('weeklyAvgSleepEnabled').checked = goals.weekly.avgSleep.enabled;
+  document.getElementById('weeklyAvgSleepTarget').value = goals.weekly.avgSleep.target;
+  document.getElementById('weeklyAvgReadinessEnabled').checked = goals.weekly.avgReadiness.enabled;
+  document.getElementById('weeklyAvgReadinessTarget').value = goals.weekly.avgReadiness.target;
+  
+  // Populate monthly goals
+  document.getElementById('monthlyMileageEnabled').checked = goals.monthly.mileage.enabled;
+  document.getElementById('monthlyMileageTarget').value = goals.monthly.mileage.target;
+  document.getElementById('monthlyRunsEnabled').checked = goals.monthly.runs.enabled;
+  document.getElementById('monthlyRunsTarget').value = goals.monthly.runs.target;
+  document.getElementById('monthlyAvgSleepEnabled').checked = goals.monthly.avgSleep.enabled;
+  document.getElementById('monthlyAvgSleepTarget').value = goals.monthly.avgSleep.target;
+  document.getElementById('monthlyAvgReadinessEnabled').checked = goals.monthly.avgReadiness.enabled;
+  document.getElementById('monthlyAvgReadinessTarget').value = goals.monthly.avgReadiness.target;
+  
+  modal.classList.add('active');
+}
+
+// Close goals modal
+function closeGoalsModal() {
+  const modal = document.getElementById('goalsModal');
+  if (modal) {
+    modal.classList.remove('active');
+  }
+}
+
+// Save goals from modal
+function saveGoals() {
+  if (!goalsManager) return;
+  
+  // Save weekly goals
+  goalsManager.updateGoal('weekly', 'mileage', 
+    document.getElementById('weeklyMileageEnabled').checked,
+    parseFloat(document.getElementById('weeklyMileageTarget').value) || 0
+  );
+  goalsManager.updateGoal('weekly', 'runs',
+    document.getElementById('weeklyRunsEnabled').checked,
+    parseInt(document.getElementById('weeklyRunsTarget').value) || 0
+  );
+  goalsManager.updateGoal('weekly', 'avgSleep',
+    document.getElementById('weeklyAvgSleepEnabled').checked,
+    parseFloat(document.getElementById('weeklyAvgSleepTarget').value) || 0
+  );
+  goalsManager.updateGoal('weekly', 'avgReadiness',
+    document.getElementById('weeklyAvgReadinessEnabled').checked,
+    parseInt(document.getElementById('weeklyAvgReadinessTarget').value) || 0
+  );
+  
+  // Save monthly goals
+  goalsManager.updateGoal('monthly', 'mileage',
+    document.getElementById('monthlyMileageEnabled').checked,
+    parseFloat(document.getElementById('monthlyMileageTarget').value) || 0
+  );
+  goalsManager.updateGoal('monthly', 'runs',
+    document.getElementById('monthlyRunsEnabled').checked,
+    parseInt(document.getElementById('monthlyRunsTarget').value) || 0
+  );
+  goalsManager.updateGoal('monthly', 'avgSleep',
+    document.getElementById('monthlyAvgSleepEnabled').checked,
+    parseFloat(document.getElementById('monthlyAvgSleepTarget').value) || 0
+  );
+  goalsManager.updateGoal('monthly', 'avgReadiness',
+    document.getElementById('monthlyAvgReadinessEnabled').checked,
+    parseInt(document.getElementById('monthlyAvgReadinessTarget').value) || 0
+  );
+  
+  // Re-calculate progress with current data if available
+  if (window.currentData) {
+    goalsManager.updateProgress(window.currentData);
+  }
+  
+  // Re-render goals display
+  renderGoals();
+  
+  // Close modal
+  closeGoalsModal();
+  
+  console.log('[GOALS] Goals saved successfully');
+}
+
+// Render goals display
+function renderGoals() {
+  if (!goalsManager) return;
+  
+  const goalsContent = document.getElementById('goalsContent');
+  if (!goalsContent) return;
+  
+  const activeGoals = goalsManager.getActiveGoals();
+  const streaks = goalsManager.getStreaks();
+  
+  if (activeGoals.length === 0) {
+    // Show no goals message
+    goalsContent.innerHTML = `
+      <div class="no-goals-message">
+        <p>No goals set yet. Start tracking your progress!</p>
+        <p style="font-size: 14px; color: #95a5a6;">Click "Set Goals" to create weekly or monthly targets.</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Render active goals
+  let goalsHTML = '<div class="goals-grid">';
+  
+  activeGoals.forEach(goal => {
+    const summary = goalsManager.getGoalSummary(goal.period, goal.metric);
+    if (!summary) return;
+    
+    const periodClass = goal.period === 'weekly' ? 'weekly' : 'monthly';
+    const completeClass = summary.isComplete ? 'complete' : '';
+    const metricNames = {
+      mileage: 'Mileage',
+      runs: 'Runs',
+      avgSleep: 'Avg Sleep',
+      avgReadiness: 'Readiness'
+    };
+    
+    const statusText = summary.isComplete 
+      ? '🎉 Goal Complete!' 
+      : `${summary.remaining.toFixed(1)} ${summary.unit} to go`;
+    
+    goalsHTML += `
+      <div class="goal-card ${periodClass} ${completeClass}">
+        <div class="goal-title">${goal.period} ${metricNames[goal.metric]}</div>
+        <div class="goal-metric">${summary.displayText}</div>
+        <div class="goal-progress-bar">
+          <div class="goal-progress-fill" style="width: ${summary.progress}%"></div>
+        </div>
+        <div class="goal-status">${statusText}</div>
+      </div>
+    `;
+  });
+  
+  goalsHTML += '</div>';
+  
+  // Add streaks section
+  goalsHTML += `
+    <div class="streaks-section">
+      <div class="streaks-title">
+        🔥 Current Streaks
+      </div>
+      <div class="streaks-grid">
+        <div class="streak-item">
+          <div class="streak-icon">💤</div>
+          <div class="streak-info">
+            <div class="streak-label">Sleep Goal (8h+)</div>
+            <div class="streak-value">${streaks.consecutiveSleepGoal} days</div>
+            <div class="streak-best">Best: ${streaks.bestSleepStreak}</div>
+          </div>
+        </div>
+        <div class="streak-item">
+          <div class="streak-icon">🏃</div>
+          <div class="streak-info">
+            <div class="streak-label">Run Streak</div>
+            <div class="streak-value">${streaks.consecutiveRunDays} days</div>
+            <div class="streak-best">Best: ${streaks.bestRunStreak}</div>
+          </div>
+        </div>
+        <div class="streak-item">
+          <div class="streak-icon">⚡</div>
+          <div class="streak-info">
+            <div class="streak-label">Readiness (85+)</div>
+            <div class="streak-value">${streaks.consecutiveReadinessGoal} days</div>
+            <div class="streak-best">Best: ${streaks.bestReadinessStreak}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  goalsContent.innerHTML = goalsHTML;
+}
+
+// Update goals progress when new data is loaded
+function updateGoalsWithData(data) {
+  if (!goalsManager || !data) return;
+  
+  // Store data globally for access in other functions
+  window.currentData = data;
+  
+  // Update progress calculations
+  goalsManager.updateProgress(data);
+  
+  // Re-render goals display
+  renderGoals();
+  
+  console.log('[GOALS] Progress updated with new data');
+}
+
+// Initialize goals system when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initGoals);
+} else {
+  setTimeout(initGoals, 100);
 }
