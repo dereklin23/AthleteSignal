@@ -8,6 +8,8 @@ A comprehensive fitness dashboard that overlays and visualizes training data fro
 
 ## ✨ Features
 
+> 📸 **Want to see it in action?** Check out our [**Feature Showcase**](./FEATURES.md) with screenshots and detailed descriptions!
+
 ### 🎯 Goal Tracking & Progress Monitoring
 - **Weekly & Monthly Goals**: Set targets for mileage, runs, sleep, and readiness
 - **Visual Progress Bars**: Beautiful gradient cards showing completion percentage
