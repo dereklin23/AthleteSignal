@@ -7,6 +7,9 @@ let mileageChartInstance = null;
 let initRetryCount = 0;
 const MAX_RETRIES = 50; // Max 5 seconds of retries
 
+// Initialize Training Load Analyzer
+let trainingLoadAnalyzer = null;
+
 // Wait for DOM and Chart.js to be ready
 function initCharts() {
   // Prevent multiple calls
@@ -572,6 +575,20 @@ async function loadDataAndCreateCharts(startDate, endDate) {
     
     // Calculate and display statistics
     updateStatistics(data, totalSleep, light, rem, deep, distance, sleepScores, readinessScores, pace, averageHeartrate, maxHeartrate, cadence, isSingleDay);
+    
+    // Update training load analysis (hide for single-day views)
+    if (!isSingleDay) {
+      if (!trainingLoadAnalyzer) {
+        trainingLoadAnalyzer = new TrainingLoadAnalyzer();
+      }
+      renderTrainingLoadAnalysis(data);
+    } else {
+      // Hide training load container for single day view
+      const trainingLoadContainer = document.getElementById('trainingLoadContainer');
+      if (trainingLoadContainer) {
+        trainingLoadContainer.style.display = 'none';
+      }
+    }
     
     // Update goals progress with loaded data (hide for single-day views)
     updateGoalsWithData(data, isSingleDay);
@@ -2257,10 +2274,175 @@ function updateGoalsWithData(data, isSingleDay = false) {
   // Update progress calculations
   goalsManager.updateProgress(data);
   
+  // Update training load analysis
+  if (trainingLoadAnalyzer) {
+    renderTrainingLoadAnalysis(data);
+  }
+  
   // Re-render goals display
   renderGoals();
   
   console.log('[GOALS] Progress updated with new data');
+}
+
+// Training Load Analysis Rendering
+function renderTrainingLoadAnalysis(data) {
+  const container = document.getElementById('trainingLoadContent');
+  if (!container || !data || data.length === 0) return;
+
+  if (!trainingLoadAnalyzer) {
+    trainingLoadAnalyzer = new TrainingLoadAnalyzer();
+  }
+
+  const analysis = trainingLoadAnalyzer.getFullAnalysis(data);
+  
+  if (!analysis) {
+    container.innerHTML = '<p style="text-align: center; color: #7f8c8d; padding: 20px;">Need at least 7 days of data for training load analysis.</p>';
+    return;
+  }
+
+  let html = '<div class="training-load-grid">';
+
+  // ACWR Card
+  if (analysis.acwr) {
+    const acwr = analysis.acwr;
+    const riskClass = `risk-${acwr.riskLevel}`;
+    const riskEmoji = {
+      'low': '📉',
+      'optimal': '✅',
+      'moderate': '⚠️',
+      'high': '🚨'
+    }[acwr.riskLevel] || '📊';
+
+    html += `
+      <div class="training-load-card acwr ${riskClass}">
+        <h3>${riskEmoji} Training Load Ratio</h3>
+        <div class="metric-value">${acwr.ratio.toFixed(2)}</div>
+        <div class="metric-label">Acute:Chronic Workload Ratio</div>
+        <div class="detail-text">
+          7-day avg: ${acwr.acuteAvg.toFixed(1)} mi/day<br>
+          28-day avg: ${acwr.chronicAvg.toFixed(1)} mi/day<br>
+          Risk Level: <strong>${acwr.riskLevel.toUpperCase()}</strong>
+        </div>
+        <div class="recommendation-text">
+          ${acwr.recommendation}
+        </div>
+      </div>
+    `;
+  }
+
+  // Today's Recovery Card
+  if (analysis.todayRecovery && analysis.todayRecovery.score !== null) {
+    const recovery = analysis.todayRecovery;
+    const level = trainingLoadAnalyzer.getRecoveryLevel(recovery.score);
+    const emoji = {
+      'excellent': '💪',
+      'good': '✓',
+      'fair': '⚡',
+      'poor': '🛑'
+    }[level] || '📊';
+
+    html += `
+      <div class="training-load-card recovery">
+        <h3>${emoji} Today's Recovery</h3>
+        <div class="metric-value">${recovery.score}</div>
+        <div class="metric-label">Recovery Score</div>
+        <div class="detail-text">
+          ${recovery.source === 'combined' 
+            ? `Sleep: ${recovery.sleepScore} | Readiness: ${recovery.readinessScore}`
+            : `Based on ${recovery.source}`
+          }<br>
+          Level: <strong>${level.toUpperCase()}</strong>
+        </div>
+      </div>
+    `;
+  }
+
+  // Today's Recommendation Card
+  if (analysis.todayRecommendation) {
+    const rec = analysis.todayRecommendation;
+    html += `
+      <div class="training-load-card recommendation" style="border-left: 5px solid ${rec.color};">
+        <h3>🎯 Today's Recommendation</h3>
+        <div class="metric-label" style="font-size: 16px; margin: 15px 0;">
+          ${rec.recommendation}
+        </div>
+        <div class="detail-text">
+          Training Intensity: <strong>${rec.trainingIntensity.toUpperCase()}</strong>
+          ${rec.distance > 0 ? `<br>Distance run: ${rec.distance.toFixed(1)} mi` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  // 7-Day Average Recovery Card
+  if (analysis.avgRecovery !== null) {
+    const avgLevel = analysis.avgRecoveryLevel;
+    const emoji = {
+      'excellent': '💪',
+      'good': '✓',
+      'fair': '⚡',
+      'poor': '🛑'
+    }[avgLevel] || '📊';
+
+    html += `
+      <div class="training-load-card" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+        <h3>${emoji} 7-Day Recovery Trend</h3>
+        <div class="metric-value">${analysis.avgRecovery}</div>
+        <div class="metric-label">Average Recovery Score</div>
+        <div class="detail-text">
+          Trend: <strong>${avgLevel.toUpperCase()}</strong>
+        </div>
+      </div>
+    `;
+  }
+
+  html += '</div>';
+
+  // Calendar view for last 14 days
+  const today = new Date();
+  const fourteenDaysAgo = new Date(today);
+  fourteenDaysAgo.setDate(today.getDate() - 13);
+  
+  const startDate = fourteenDaysAgo.toISOString().split('T')[0];
+  const endDate = today.toISOString().split('T')[0];
+  
+  const calendar = trainingLoadAnalyzer.generateCalendarRecommendations(data, startDate, endDate);
+  
+  if (calendar && calendar.length > 0) {
+    html += `
+      <div class="calendar-view">
+        <h3>📅 14-Day Training Calendar</h3>
+        <div class="calendar-grid">
+    `;
+    
+    calendar.forEach(day => {
+      const date = new Date(day.date);
+      const dateLabel = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const intensityClass = `intensity-${day.trainingIntensity}`;
+      
+      html += `
+        <div class="calendar-day ${intensityClass}">
+          <div class="calendar-day-date">${dateLabel}</div>
+          <div class="calendar-day-recommendation">${day.recommendation}</div>
+          ${day.recoveryScore ? `
+            <div class="calendar-day-metrics">
+              Recovery: ${day.recoveryScore}
+              ${day.distance > 0 ? `<br>Run: ${day.distance.toFixed(1)} mi` : ''}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    });
+    
+    html += `
+        </div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+  console.log('[TRAINING LOAD] Analysis rendered');
 }
 
 // Initialize goals system when DOM is ready
