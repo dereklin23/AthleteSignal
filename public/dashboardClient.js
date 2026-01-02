@@ -130,6 +130,25 @@ function formatDateRangeTitle(startDate, endDate) {
   const start = new Date(startDate);
   const end = new Date(endDate);
   
+  // Check if it's a single day (Today view)
+  const isSameDay = startDate === endDate;
+  if (isSameDay) {
+    // Check if it's actually today
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    
+    if (startDate === todayStr) {
+      return "Today";
+    } else {
+      // Single day but not today - show the date
+      const dayName = start.toLocaleString('default', { weekday: 'long' });
+      const month = start.toLocaleString('default', { month: 'long' });
+      const day = start.getDate();
+      const year = start.getFullYear();
+      return `${dayName}, ${month} ${day}, ${year}`;
+    }
+  }
+  
   const startMonth = start.toLocaleString('default', { month: 'long' });
   const startYear = start.getFullYear();
   const endMonth = end.toLocaleString('default', { month: 'long' });
