@@ -158,6 +158,20 @@ function formatDateRangeTitle(startDate, endDate) {
     }
   }
   
+  // Check if it's "Last Year" (Jan 1 to Dec 31 of previous year)
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const lastYear = currentYear - 1;
+  
+  const isLastYear = start.getFullYear() === lastYear && 
+                     end.getFullYear() === lastYear &&
+                     start.getMonth() === 0 && start.getDate() === 1 &&
+                     end.getMonth() === 11 && end.getDate() === 31;
+  
+  if (isLastYear) {
+    return "Last Year";
+  }
+  
   const startMonth = start.toLocaleString('default', { month: 'long' });
   const startYear = start.getFullYear();
   const endMonth = end.toLocaleString('default', { month: 'long' });
