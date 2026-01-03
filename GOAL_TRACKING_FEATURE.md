@@ -1,7 +1,7 @@
 # Goal Tracking Feature
 
 ## Overview
-RestToRun now includes a comprehensive goal tracking system that helps athletes set, monitor, and achieve their training and recovery targets. The system tracks both weekly and monthly goals with visual progress indicators and streak tracking.
+Athlete Signal now includes a comprehensive goal tracking system that helps athletes set, monitor, and achieve their training and recovery targets. The system tracks both weekly and monthly goals with visual progress indicators and streak tracking.
 
 ## Features
 
@@ -146,7 +146,7 @@ updateGoalsWithData()    // Update progress from data
    - Responsive breakpoints defined for mobile
 
 3. **Storage**:
-   - Goals stored in `localStorage` under key `resttorun_goals`
+   - Goals stored in `localStorage` under key `athlete_signal_goals`
    - Data structure includes weekly, monthly, and streaks
    - Easy to migrate to backend storage if needed
 
@@ -227,5 +227,5 @@ Track these to measure feature adoption:
 
 **Version**: 1.0.0  
 **Release Date**: December 31, 2025  
-**Author**: RestToRun Team
+**Author**: Athlete Signal Team
 

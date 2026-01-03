@@ -1,6 +1,6 @@
 # Screenshots Directory
 
-This directory contains screenshots for the RestToRun documentation.
+This directory contains screenshots for the Athlete Signal documentation.
 
 ## File Names
 

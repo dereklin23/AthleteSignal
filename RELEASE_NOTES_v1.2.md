@@ -115,7 +115,7 @@ This keeps the interface clean and contextually relevant, showing information on
 ## 🚀 Deployment
 
 ### Production
-- **URL:** https://resttorun-production.up.railway.app
+- **URL:** https://athlete-signal-production.up.railway.app
 - **Platform:** Railway
 - **Auto-Deploy:** Enabled from `main` branch
 - **Session Store:** Redis
@@ -134,7 +134,7 @@ This keeps the interface clean and contextually relevant, showing information on
 
 ### Goal Tracking Architecture
 
-**Storage:** Browser localStorage under key `resttorun_goals`
+**Storage:** Browser localStorage under key `athlete_signal_goals`
 
 **Data Structure:**
 ```javascript
@@ -225,7 +225,7 @@ All new features are additive and don't affect existing functionality. Users upg
 
 ## 🙏 Credits
 
-**Developed by:** RestToRun Team  
+**Developed by:** Athlete Signal Team  
 **APIs Used:**
 - Strava API v3
 - Oura Ring API v2
@@ -248,5 +248,5 @@ For questions, issues, or feedback:
 
 **Made with ❤️ by athletes, for athletes**
 
-🏃‍♂️ RestToRun - From Rest to Run
+📊 Athlete Signal - Track Your Performance
 

@@ -1,7 +1,7 @@
 {
-  "name": "rest-to-run",
+  "name": "athlete-signal",
   "version": "1.0.0",
-  "description": "Track your recovery and performance metrics - from rest to run",
+  "description": "Track your recovery and performance metrics with Athlete Signal",
   "main": "index.js",
   "scripts": {
     "start": "node src/fitnessApiServer.js",

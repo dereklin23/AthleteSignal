@@ -1,8 +1,8 @@
-# RestToRun
+# Athlete Signal
 
 A comprehensive fitness dashboard that overlays and visualizes training data from Strava with sleep and readiness data from Oura Ring. Get insights into how your training correlates with your recovery metrics.
 
-![RestToRun Dashboard](https://img.shields.io/badge/Status-Active-success)
+![Athlete Signal Dashboard](https://img.shields.io/badge/Status-Active-success)
 ![Node.js](https://img.shields.io/badge/Node.js-v18+-green)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
@@ -74,9 +74,9 @@ A comprehensive fitness dashboard that overlays and visualizes training data fro
 
 ## 🌐 Live Demo
 
-**Production:** https://resttorun-production.up.railway.app
+**Production:** https://athlete-signal-production.up.railway.app
 
-Experience RestToRun live! Connect your Strava and Oura accounts to see your personalized dashboard with training and recovery metrics.
+Experience Athlete Signal live! Connect your Strava and Oura accounts to see your personalized dashboard with training and recovery metrics.
 
 ---
 
@@ -93,7 +93,7 @@ Experience RestToRun live! Connect your Strava and Oura accounts to see your per
 ## 📁 Project Structure
 
 ```
-RestToRun/
+athlete-signal/
 ├── public/
 │   ├── dashboardClient.js          # Client-side chart visualization
 │   ├── goalsManager.js             # Goal tracking system
@@ -127,7 +127,7 @@ See the complete guide: **[RAILWAY_DEPLOYMENT.md](./RAILWAY_DEPLOYMENT.md)**
 5. Configure environment variables
 6. Get your free subdomain: `your-app.up.railway.app`
 
-**Optional:** Connect your own domain (`resttorun.com`)
+**Optional:** Connect your own domain (`athletesignal.com`)
 
 ---
 
@@ -142,8 +142,8 @@ See the complete guide: **[RAILWAY_DEPLOYMENT.md](./RAILWAY_DEPLOYMENT.md)**
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/dereklin23/RestToRun.git
-   cd RestToRun
+   git clone https://github.com/dereklin23/athlete-signal.git
+   cd athlete-signal
    ```
 
 2. **Install dependencies**
