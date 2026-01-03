@@ -164,13 +164,27 @@ function formatDateRangeTitle(startDate, endDate) {
   const currentYear = now.getFullYear();
   const lastYear = currentYear - 1;
   
-  // Format expected dates for last year
-  const expectedStartDate = `${lastYear}-01-01`;
-  const expectedEndDate = `${lastYear}-12-31`;
+  // Parse the date strings to extract year, month, day
+  const startParts = startDate.split('-');
+  const endParts = endDate.split('-');
   
-  // Compare string dates directly
-  if (startDate === expectedStartDate && endDate === expectedEndDate) {
-    return "Last Year";
+  if (startParts.length === 3 && endParts.length === 3) {
+    const startYear = parseInt(startParts[0], 10);
+    const startMonth = parseInt(startParts[1], 10);
+    const startDay = parseInt(startParts[2], 10);
+    const endYear = parseInt(endParts[0], 10);
+    const endMonth = parseInt(endParts[1], 10);
+    const endDay = parseInt(endParts[2], 10);
+    
+    // Check if it's the full previous year (Jan 1 to Dec 31)
+    const isLastYear = startYear === lastYear && 
+                       endYear === lastYear &&
+                       startMonth === 1 && startDay === 1 &&
+                       endMonth === 12 && endDay === 31;
+    
+    if (isLastYear) {
+      return "Last Year";
+    }
   }
   
   const startMonth = start.toLocaleString('default', { month: 'long' });
