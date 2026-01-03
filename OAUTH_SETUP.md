@@ -1,4 +1,4 @@
-# OAuth Setup Guide for RestToRun
+# OAuth Setup Guide for Athlete Signal
 
 This guide will help you set up OAuth authentication for Strava and Oura Ring.
 
@@ -37,7 +37,7 @@ The OAuth packages (`express-session`, `cookie-parser`) are already installed.
 1. Go to [Oura Cloud OAuth Applications](https://cloud.ouraring.com/oauth/applications)
 2. Click "Create New Application"
 3. Fill in the application details:
-   - **Name**: RestToRun (or your preferred name)
+   - **Name**: Athlete Signal (or your preferred name)
    - **Redirect URI**: `http://localhost:3000/auth/oura/callback`
      - For production: `https://yourdomain.com/auth/oura/callback`
 4. Note down your:
@@ -187,5 +187,5 @@ Once both services are connected, you can:
 - Track correlations between training and recovery
 - Access historical data with date range filters
 
-Enjoy using RestToRun! 🏃‍♂️💤
+Enjoy using Athlete Signal! 📊💤
 

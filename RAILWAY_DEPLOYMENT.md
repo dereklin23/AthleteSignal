@@ -1,6 +1,6 @@
 # Railway Deployment Guide
 
-## Quick Start: Deploy RestToRun to Railway
+## Quick Start: Deploy Athlete Signal to Railway
 
 ### Prerequisites
 - GitHub account
@@ -12,7 +12,7 @@
 
 ## Step 1: Prepare Your Repository
 
-Your code is already on GitHub at: `https://github.com/dereklin23/RestToRun.git`
+Your code is already on GitHub at: `https://github.com/dereklin23/athlete-signal.git`
 
 ✅ Repository is ready for deployment!
 
@@ -26,7 +26,7 @@ Your code is already on GitHub at: `https://github.com/dereklin23/RestToRun.git`
 2. Click **"Start a New Project"**
 3. Select **"Deploy from GitHub repo"**
 4. Authorize Railway to access your GitHub account
-5. Select the **`RestToRun`** repository
+5. Select the **`athlete-signal`** repository
 6. Railway will automatically detect it's a Node.js app and start deploying
 
 ### 2.2 Add Redis Database
@@ -74,11 +74,11 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ### 4.1 Generate Domain
 
 1. Go to your Railway project
-2. Click on your service (RestToRun)
+2. Click on your service (Athlete Signal)
 3. Go to **"Settings"** → scroll to **"Networking"** section
 4. Under **"Public Networking"**, click **"Generate Domain"**
 5. Enter **port 3000** when prompted (or leave the default)
-6. You'll get a free subdomain like: `resttorun-production.up.railway.app`
+6. You'll get a free subdomain like: `athlete-signal-production.up.railway.app`
 
 ### 4.2 **IMPORTANT: Fix Port Configuration** ⚠️
 
@@ -144,10 +144,10 @@ Copy your domain - you'll need it for the next step!
 
 ## Step 8 (Optional): Connect Custom Domain
 
-Want to use `resttorun.com` instead of the Railway subdomain?
+Want to use `athletesignal.com` instead of the Railway subdomain?
 
 ### Purchase Domain
-1. Buy `resttorun.com` from a domain registrar:
+1. Buy `athletesignal.com` from a domain registrar:
    - Namecheap (~$10/year)
    - Google Domains (~$12/year)
    - Cloudflare (~$10/year)
@@ -155,7 +155,7 @@ Want to use `resttorun.com` instead of the Railway subdomain?
 ### Connect to Railway
 1. In Railway, go to **Settings** → **Domains**
 2. Click **"Custom Domain"**
-3. Enter `resttorun.com`
+3. Enter `athletesignal.com`
 4. Railway will give you DNS records to add
 5. Go to your domain registrar and add the DNS records:
    ```
@@ -166,8 +166,8 @@ Want to use `resttorun.com` instead of the Railway subdomain?
 6. Wait 5-60 minutes for DNS to propagate
 
 ### Update OAuth Redirect URIs Again
-1. Update Strava and Oura redirect URIs to use `resttorun.com`
-2. Update Railway environment variables to use `resttorun.com`
+1. Update Strava and Oura redirect URIs to use `athletesignal.com`
+2. Update Railway environment variables to use `athletesignal.com`
 
 ---
 
@@ -234,7 +234,7 @@ After deployment, you'll have:
 
 - **Development:** http://localhost:3000
 - **Production (Railway):** https://your-app-name.up.railway.app
-- **Production (Custom):** https://resttorun.com (after domain setup)
+- **Production (Custom):** https://athletesignal.com (after domain setup)
 
 ---
 
@@ -258,5 +258,5 @@ After deployment, you'll have:
 
 ---
 
-Enjoy your deployed RestToRun app! 🚀
+Enjoy your deployed Athlete Signal app! 🚀
 

@@ -1,4 +1,4 @@
-# Quick Setup Instructions for RestToRun OAuth
+# Quick Setup Instructions for Athlete Signal OAuth
 
 ## ✅ Step 1: Session Secret (DONE!)
 Your session secret has been generated: `I8WoU89QtZiBhH2l+sDqo1R1mCQZAodRB1lyFMxWFzQ=`
@@ -14,7 +14,7 @@ Your session secret has been generated: `I8WoU89QtZiBhH2l+sDqo1R1mCQZAodRB1lyFMx
    - Click "Create New Application"
    
 2. **Fill in the form:**
-   - **Application Name:** RestToRun
+   - **Application Name:** Athlete Signal
    - **Category:** Training
    - **Club:** Leave blank
    - **Website:** http://localhost:3000
@@ -42,7 +42,7 @@ Your session secret has been generated: `I8WoU89QtZiBhH2l+sDqo1R1mCQZAodRB1lyFMx
 1. **Click "Create New Application"**
 
 2. **Fill in the form:**
-   - **Name:** RestToRun
+   - **Name:** Athlete Signal
    - **Redirect URI:** `http://localhost:3000/auth/oura/callback`
    - **Description:** Personal fitness dashboard (optional)
 

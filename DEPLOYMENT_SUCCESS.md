@@ -1,14 +1,14 @@
-# RestToRun - Successfully Deployed! 🎉
+# Athlete Signal - Successfully Deployed! 🎉
 
-**Live URL:** https://resttorun-production.up.railway.app
+**Live URL:** https://athlete-signal-production.up.railway.app
 
 ## Deployment Summary
 
-RestToRun has been successfully deployed to Railway with the following setup:
+Athlete Signal has been successfully deployed to Railway with the following setup:
 
 ### Infrastructure
 - **Hosting:** Railway (https://railway.app)
-- **Domain:** resttorun-production.up.railway.app (free Railway subdomain)
+- **Domain:** athlete-signal-production.up.railway.app (free Railway subdomain)
 - **Database:** Redis (for production session storage)
 - **Port:** 8080
 - **Environment:** Production
@@ -32,8 +32,8 @@ RestToRun has been successfully deployed to Railway with the following setup:
 - `REDIS_URL` (auto-configured by Railway)
 
 **OAuth Redirect URIs:**
-- Strava: `resttorun-production.up.railway.app` (Authorization Callback Domain)
-- Oura: `https://resttorun-production.up.railway.app/auth/oura/callback`
+- Strava: `athlete-signal-production.up.railway.app` (Authorization Callback Domain)
+- Oura: `https://athlete-signal-production.up.railway.app/auth/oura/callback`
 
 ### Key Deployment Steps Completed
 
@@ -65,7 +65,7 @@ This ensures proper initialization order and prevents race conditions.
 ### Monitoring
 
 **Check Deployment Status:**
-- Railway Dashboard → RestToRun service → "Deploy Logs" tab
+- Railway Dashboard → Athlete Signal service → "Deploy Logs" tab
 
 **Expected Log Output:**
 ```
@@ -86,7 +86,7 @@ This ensures proper initialization order and prevents race conditions.
 
 ### Future Improvements (Optional)
 
-1. **Custom Domain:** Purchase `resttorun.com` and connect to Railway
+1. **Custom Domain:** Purchase `athletesignal.com` and connect to Railway
 2. **Monitoring:** Add application monitoring (e.g., Sentry)
 3. **CI/CD:** Set up automated testing before deployment
 4. **Database Backup:** Configure Redis persistence/backups
@@ -94,7 +94,7 @@ This ensures proper initialization order and prevents race conditions.
 
 ### Access
 
-**Public URL:** https://resttorun-production.up.railway.app
+**Public URL:** https://athlete-signal-production.up.railway.app
 
 **Features Available:**
 - User authentication via Strava + Oura OAuth
@@ -107,7 +107,7 @@ This ensures proper initialization order and prevents race conditions.
 
 **Deployment Date:** December 31, 2025  
 **Status:** ✅ Live and Operational  
-**GitHub Repository:** https://github.com/dereklin23/RestToRun
+**GitHub Repository:** https://github.com/dereklin23/athlete-signal
 
 ---
 

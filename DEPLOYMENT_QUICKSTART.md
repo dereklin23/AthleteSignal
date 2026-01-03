@@ -1,4 +1,4 @@
-# 🚀 Deploy RestToRun to Railway - Quick Start
+# 🚀 Deploy Athlete Signal to Railway - Quick Start
 
 Your app is now **ready to deploy**! Follow these simple steps:
 
@@ -12,7 +12,7 @@ Your app is now **ready to deploy**! Follow these simple steps:
 
 1. Click **"+ New Project"**
 2. Select **"Deploy from GitHub repo"**
-3. Choose: **`RestToRun`** repository
+3. Choose: **`athlete-signal`** repository
 4. Railway will automatically start building! ⚡
 
 ## Step 3: Add Redis Database
@@ -24,7 +24,7 @@ Your app is now **ready to deploy**! Follow these simple steps:
 ## Step 4: Generate Domain and Configure Port ⚠️
 
 ### Generate Domain:
-1. Click on your service (RestToRun, not Redis)
+1. Click on your service (Athlete Signal, not Redis)
 2. Go to **"Settings"** tab → scroll to **"Networking"**
 3. Click **"Generate Domain"** under Public Networking
 4. Copy your new URL: `something.up.railway.app`
@@ -102,18 +102,18 @@ Railway will automatically redeploy after you update variables.
 
 ## Want a Custom Domain? (Optional)
 
-### Buy `resttorun.com`
+### Buy `athletesignal.com`
 - **Namecheap**: ~$10/year
 - **Cloudflare**: ~$10/year
 - **Google Domains**: ~$12/year
 
 ### Connect to Railway
 1. In Railway → **Settings** → **Domains** → **"Custom Domain"**
-2. Enter: `resttorun.com`
+2. Enter: `athletesignal.com`
 3. Add DNS records provided by Railway to your domain registrar
 4. Wait 5-60 minutes
-5. Update Strava & Oura redirect URIs to use `resttorun.com`
-6. Update Railway variables to use `resttorun.com`
+5. Update Strava & Oura redirect URIs to use `athletesignal.com`
+6. Update Railway variables to use `athletesignal.com`
 
 ---
 
@@ -139,7 +139,7 @@ Railway will automatically redeploy after you update variables.
 
 📖 **Full Guide**: [RAILWAY_DEPLOYMENT.md](./RAILWAY_DEPLOYMENT.md)  
 🔐 **OAuth Setup**: [OAUTH_SETUP.md](./OAUTH_SETUP.md)  
-📧 **Issues**: [GitHub Issues](https://github.com/dereklin23/RestToRun/issues)
+📧 **Issues**: [GitHub Issues](https://github.com/dereklin23/athlete-signal/issues)
 
 ---
 
