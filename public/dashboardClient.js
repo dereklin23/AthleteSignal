@@ -158,10 +158,20 @@ function formatDateRangeTitle(startDate, endDate) {
     }
   }
   
-  // Check if it's "Last Year" (Jan 1 to Dec 31 of previous year)
-  // Compare date strings directly to avoid timezone issues
+  // Check for preset date ranges - compare date strings directly to avoid timezone issues
   const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  
+  const todayStr = formatDate(today);
   const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth(); // 0-11
   const lastYear = currentYear - 1;
   
   // Parse the date strings to extract year, month, day
@@ -176,7 +186,46 @@ function formatDateRangeTitle(startDate, endDate) {
     const endMonth = parseInt(endParts[1], 10);
     const endDay = parseInt(endParts[2], 10);
     
-    // Check if it's the full previous year (Jan 1 to Dec 31)
+    // Check for "Last 7 Days" (endDate is today, startDate is 6 days before)
+    if (endDate === todayStr) {
+      const sixDaysAgo = new Date(today);
+      sixDaysAgo.setDate(today.getDate() - 6);
+      const sixDaysAgoStr = formatDate(sixDaysAgo);
+      if (startDate === sixDaysAgoStr) {
+        return "Last 7 Days";
+      }
+      
+      // Check for "Last 30 Days" (endDate is today, startDate is 29 days before)
+      const twentyNineDaysAgo = new Date(today);
+      twentyNineDaysAgo.setDate(today.getDate() - 29);
+      const twentyNineDaysAgoStr = formatDate(twentyNineDaysAgo);
+      if (startDate === twentyNineDaysAgoStr) {
+        return "Last 30 Days";
+      }
+      
+      // Check for "This Month" (startDate is first day of current month, endDate is today)
+      const firstOfMonth = new Date(currentYear, currentMonth, 1);
+      const firstOfMonthStr = formatDate(firstOfMonth);
+      if (startDate === firstOfMonthStr && endDate === todayStr) {
+        return "This Month";
+      }
+      
+      // Check for "This Year" (startDate is Jan 1 of current year, endDate is today)
+      if (startYear === currentYear && startMonth === 1 && startDay === 1 && endDate === todayStr) {
+        return "This Year";
+      }
+    }
+    
+    // Check for "Last Month" (first day to last day of previous month)
+    const lastMonthStart = new Date(currentYear, currentMonth - 1, 1);
+    const lastMonthEnd = new Date(currentYear, currentMonth, 0); // Last day of last month
+    const lastMonthStartStr = formatDate(lastMonthStart);
+    const lastMonthEndStr = formatDate(lastMonthEnd);
+    if (startDate === lastMonthStartStr && endDate === lastMonthEndStr) {
+      return "Last Month";
+    }
+    
+    // Check for "Last Year" (Jan 1 to Dec 31 of previous year)
     const isLastYear = startYear === lastYear && 
                        endYear === lastYear &&
                        startMonth === 1 && startDay === 1 &&
